@@ -1,5 +1,5 @@
 # ml-sports-media
-Laboratories for media processing with ML for Sport events - Amazon SageMaker
+Laboratories for automatic sport's media processing with AWS ML - Amazon SageMaker
 
 ## Lab #1: Object detection & tracking for sport videos with Amazon SageMaker
 
