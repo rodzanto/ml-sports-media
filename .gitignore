@@ -1,1 +1,0 @@
-sample_media/Football2.mp4 $ git rm --cached sample_media/Football2.mp4 rm sample_media/Football2.mp4 $ git commit -m Start ignoring sample_media/Football2.mp4
