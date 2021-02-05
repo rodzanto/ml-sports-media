@@ -1,11 +1,4 @@
-"""This file obtained from https://gluon-cv.mxnet.io/_downloads/9f387646aed46a3419531a8970097752/ucf101.py which contains the following citation:
-
-   This script is largely borrowed from https://github.com/open-mmlab/mmaction.
-
-MMAction was authored by Yue Zhao, Yuanjun Xiong, and Dahua Lin and is licensed under Apache-2.0_.
-
-.. _Apache-2.0: https://github.com/open-mmlab/mmaction/blob/71fa1fd54154a4d3ce8480b36a09651ab19ada73/LICENSE
-"""
+"""This script is for pre-processing the videos dataset."""
 
 import argparse
 import sys
@@ -14,12 +7,10 @@ import os.path as osp
 import glob
 import fnmatch
 import random
-import zipfile
 from pipes import quote
 from multiprocessing import Pool, current_process
 
 def dump_frames(vid_item):
-
     from gluoncv.utils.filesystem import try_import_mmcv
     mmcv = try_import_mmcv()
 
@@ -96,34 +87,35 @@ def run_warp_optical_flow(vid_item, dev_id=0):
     sys.stdout.flush()
     return True
 
-
 def parse_args():
-    parser = argparse.ArgumentParser(description='prepare UCF101 dataset')
-    parser.add_argument('--download_dir', type=str, default='datasets/ucf101')
-    parser.add_argument('--src_dir', type=str, default='datasets/ucf101/UCF-101')
-    parser.add_argument('--out_dir', type=str, default='datasets/ucf101/rawframes')
-    parser.add_argument('--frame_path', type=str, default='datasets/ucf101/rawframes')
-    parser.add_argument('--anno_dir', type=str, default='datasets/ucf101/ucfTrainTestlist')
-    parser.add_argument('--out_list_path', type=str, default='datasets/ucf101/ucfTrainTestlist')
+    parser = argparse.ArgumentParser(description='prepare videos dataset')
+    parser.add_argument('--dataset', type=str, default='gluoncv')
+    args = parser.parse_args()
+    parser.add_argument('--download_dir', type=str, default='datasets/{}'.format(args.dataset))
+    args = parser.parse_args()
+    parser.add_argument('--src_dir', type=str, default='{}/videos'.format(args.download_dir))
+    parser.add_argument('--out_dir', type=str, default='{}/rawframes'.format(args.download_dir))
+    parser.add_argument('--frame_path', type=str, default='{}/rawframes'.format(args.download_dir))
+    parser.add_argument('--anno_dir', type=str, default='{}/annotations'.format(args.download_dir))
+    parser.add_argument('--out_list_path', type=str, default='{}/annotations'.format(args.download_dir))
     parser.add_argument('--level', type=int, choices=[1, 2], default=2)
     parser.add_argument('--num_worker', type=int, default=8)
     parser.add_argument('--flow_type', type=str, default=None, choices=[None, 'tvl1', 'warp_tvl1'])
     parser.add_argument('--df_path', type=str, default='./dense_flow', help='need dense flow implementation')
     parser.add_argument("--out_format", type=str, default='dir', choices=['dir', 'zip'], help='output format')
-    parser.add_argument("--ext", type=str, default='avi', choices=['avi', 'mp4'], help='video file extensions')
-    parser.add_argument("--new_width", type=int, default=0, help='resize image width')
-    parser.add_argument("--new_height", type=int, default=0, help='resize image height')
+    parser.add_argument("--ext", type=str, default='mp4', choices=['avi', 'mp4'], help='video file extensions')
+    parser.add_argument("--new_width", type=int, default=340, help='resize image width')
+    parser.add_argument("--new_height", type=int, default=256, help='resize image height')
     parser.add_argument("--num_gpu", type=int, default=8, help='number of GPU')
     parser.add_argument("--resume", action='store_true', default=False, help='resume optical flow extraction instead of overwriting')
-    parser.add_argument('--dataset', type=str, choices=['ucf101', 'kinetics400'], default='ucf101')
     parser.add_argument('--rgb_prefix', type=str, default='img_')
     parser.add_argument('--flow_x_prefix', type=str, default='flow_x_')
     parser.add_argument('--flow_y_prefix', type=str, default='flow_y_')
-    parser.add_argument('--num_split', type=int, default=3)
+    parser.add_argument('--num_split', type=int, default=1)
     parser.add_argument('--subset', type=str, default='train', choices=['train', 'val', 'test'])
     parser.add_argument('--format', type=str, default='rawframes', choices=['rawframes', 'videos'])
     parser.add_argument('--shuffle', action='store_true', default=False)
-    parser.add_argument('--tiny_dataset', action='store_true', default=True)
+    parser.add_argument('--tiny_dataset', action='store_true', default=False)
     parser.add_argument('--download', action='store_true', default=True)
     parser.add_argument('--decode_video', action='store_true', default=True)
     parser.add_argument('--build_file_list', action='store_true', default=True)
@@ -182,8 +174,58 @@ def decode_video(args):
         pool.map(dump_frames, zip(
             fullpath_list, vid_list, range(len(vid_list))))
 
-def parse_ucf101_splits(args):
+
+def mimic_ucf101(args):
+    # Create classInd.txt, trainlist01.txt, testlist01.txt as in UCF101
+
+    classes_list = os.listdir(args.frame_path)
+    classes_list.sort()
+
+    classDict = {}
+    classIndFile = os.path.join(args.anno_dir, 'classInd.txt')
+    with open(classIndFile, 'w') as f:
+        for class_id, class_name in enumerate(classes_list):
+            classDict[class_name] = class_id
+            cur_line = str(class_id + 1) + ' ' + class_name + '\r\n'
+            f.write(cur_line)
+
+    alist = [1]
+    for split_id in alist:
+        print(split_id)
+        splitTrainFile = os.path.join(args.anno_dir, 'trainlist%02d.txt' % (split_id))
+        with open(splitTrainFile, 'w') as target_train_f:
+            for class_name in classDict.keys():
+                fname = class_name + '_test_split%d.txt' % (split_id)
+                fname_path = os.path.join(args.anno_dir, fname)
+                source_f = open(fname_path, 'r')
+                source_info = source_f.readlines()
+                for _, source_line in enumerate(source_info):
+                    cur_info = source_line.split(' ')
+                    video_name = cur_info[0]
+                    if cur_info[1] == '1':
+                        target_line = class_name + '/' + video_name + ' ' + str(classDict[class_name] + 1) + '\n'
+                        target_train_f.write(target_line)
+
+        splitTestFile = os.path.join(args.anno_dir, 'testlist%02d.txt' % (split_id))
+        with open(splitTestFile, 'w') as target_test_f:
+            for class_name in classDict.keys():
+                fname = class_name + '_test_split%d.txt' % (split_id)
+                fname_path = os.path.join(args.anno_dir, fname)
+                source_f = open(fname_path, 'r')
+                source_info = source_f.readlines()
+                for _, source_line in enumerate(source_info):
+                    cur_info = source_line.split(' ')
+                    video_name = cur_info[0]
+                    if cur_info[1] == '2':
+                        target_line = class_name + '/' + video_name + ' ' + str(classDict[class_name] + 1) + '\n'
+                        target_test_f.write(target_line)
+
+
+def parse_dataset_splits(args):
     level = args.level
+
+    mimic_ucf101(args)
+
     class_ind = [x.strip().split()
                  for x in open(os.path.join(args.anno_dir, 'classInd.txt'))]
     class_mapping = {x[1]: int(x[0]) - 1 for x in class_ind}
@@ -196,13 +238,15 @@ def parse_ucf101_splits(args):
         return vid, label
 
     splits = []
-    for i in range(1, 4):
+    alist = [1]
+    for i in alist:
         train_list = [line2rec(x) for x in open(
             os.path.join(args.anno_dir, 'trainlist{:02d}.txt'.format(i)))]
         test_list = [line2rec(x) for x in open(
             os.path.join(args.anno_dir, 'testlist{:02d}.txt'.format(i)))]
         splits.append((train_list, test_list))
     return splits
+
 
 def parse_directory(path, key_func=lambda x: x[-11:],
                     rgb_prefix='img_',
@@ -245,6 +289,7 @@ def parse_directory(path, key_func=lambda x: x[-11:],
     print('frame folder analysis done')
     return frame_dict
 
+
 def build_split_list(split, frame_info, shuffle=False):
 
     def build_set_list(set_list):
@@ -274,6 +319,7 @@ def build_split_list(split, frame_info, shuffle=False):
     test_rgb_list, test_flow_list = build_set_list(split[1])
     return (train_rgb_list, test_rgb_list), (train_flow_list, test_flow_list)
 
+
 def build_file_list(args):
 
     if args.level == 2:
@@ -296,10 +342,9 @@ def build_file_list(args):
         frame_info = {osp.relpath(
             x.split('.')[0], args.frame_path): (x, -1, -1) for x in video_list}
 
-    if args.dataset == 'ucf101':
-        split_tp = parse_ucf101_splits(args)
-    elif args.dataset == 'kinetics400':
-        split_tp = parse_kinetics_splits(args)
+    split_tp = parse_dataset_splits(args)
+    print(split_tp)
+    print(len(split_tp),args.num_split)
     assert len(split_tp) == args.num_split
 
     out_path = args.out_list_path
@@ -330,44 +375,26 @@ def build_file_list(args):
         with open(osp.join(out_path, filename), 'w') as f:
             f.writelines(lists[0][ind])
 
-def download_ucf101(args):
 
-    from gluoncv.utils.filesystem import try_import_rarfile
-    rarfile = try_import_rarfile()
+def download_dataset(args):
+
+    #from gluoncv.utils.filesystem import try_import_rarfile
+    #rarfile = try_import_rarfile()
 
     target_dir = args.download_dir
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
-    
-    #download tiny UCF101 dataset
-    if args.tiny_dataset:
-        video_url = 'https://github.com/bryanyzhu/tiny-ucf101/raw/master/tiny-UCF101.zip'
-        print('%%%%%%%%%')
-        print(video_url)
-        os.system('wget --no-check-certificate -P %s %s' % (target_dir, video_url))
-        with zipfile.ZipFile(os.path.join(target_dir, 'tiny-UCF101.zip')) as zf:
-            zf.extractall(path=target_dir)
-    else:
-        video_url = 'https://www.crcv.ucf.edu/datasets/human-actions/ucf101/UCF101.rar'
-        #video_url = 'https://www.crcv.ucf.edu/data/UCF101/UCF101.rar'
-        os.system('wget --no-check-certificate -P %s %s' % (target_dir, video_url))
-        print('*****')
-        print('wget --no-check-certificate -P %s %s' % (target_dir, video_url))
-        with rarfile.RarFile(os.path.join(target_dir, 'UCF101.rar')) as rf:
-            rf.extractall(path=target_dir)
 
-    anno_url = 'https://www.crcv.ucf.edu/wp-content/uploads/2019/03/UCF101TrainTestSplits-RecognitionTask.zip'        
-    #anno_url = 'https://www.crcv.ucf.edu/data/UCF101/UCF101TrainTestSplits-RecognitionTask.zip'
-    os.system('wget --no-check-certificate -P %s %s' % (target_dir, anno_url))
-    with zipfile.ZipFile(os.path.join(target_dir, 'UCF101TrainTestSplits-RecognitionTask.zip'))  as zf:
-        zf.extractall(path=target_dir)
+    target_video_dir = os.path.join(target_dir, 'videos')
+    if not os.path.exists(target_video_dir):
+        os.makedirs(target_video_dir)
 
 if __name__ == '__main__':
     args = parse_args()
 
-    if args.download:
-        print('Downloading UCF101 dataset.')
-        download_ucf101(args)
+    #if args.download:
+    #    print('Downloading dataset.')
+    #    download_dataset(args)
 
     if args.decode_video:
         print('Decoding videos to frames.')
