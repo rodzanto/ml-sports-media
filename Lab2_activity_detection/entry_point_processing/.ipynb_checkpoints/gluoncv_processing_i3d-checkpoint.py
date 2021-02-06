@@ -179,8 +179,10 @@ def mimic_ucf101(args):
     # Create classInd.txt, trainlist01.txt, testlist01.txt as in UCF101
 
     classes_list = os.listdir(args.frame_path)
+    classes_list = [ x for x in classes_list if "ipynb_checkpoints" not in x ]
     classes_list.sort()
-
+    print('Classes:', classes_list)
+    
     classDict = {}
     classIndFile = os.path.join(args.anno_dir, 'classInd.txt')
     with open(classIndFile, 'w') as f:
@@ -191,11 +193,10 @@ def mimic_ucf101(args):
 
     alist = [1]
     for split_id in alist:
-        print(split_id)
         splitTrainFile = os.path.join(args.anno_dir, 'trainlist%02d.txt' % (split_id))
         with open(splitTrainFile, 'w') as target_train_f:
             for class_name in classDict.keys():
-                fname = class_name + '_test_split%d.txt' % (split_id)
+                fname = class_name + '_train_split%d.txt' % (split_id)
                 fname_path = os.path.join(args.anno_dir, fname)
                 source_f = open(fname_path, 'r')
                 source_info = source_f.readlines()
@@ -396,9 +397,9 @@ if __name__ == '__main__':
     #    print('Downloading dataset.')
     #    download_dataset(args)
 
-    if args.decode_video:
-        print('Decoding videos to frames.')
-        decode_video(args)
+    #if args.decode_video:
+    #    print('Decoding videos to frames.')
+    #    decode_video(args)
 
     if args.build_file_list:
         print('Generating training files.')
