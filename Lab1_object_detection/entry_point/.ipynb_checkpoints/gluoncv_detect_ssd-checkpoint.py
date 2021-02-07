@@ -134,6 +134,8 @@ def train(gt_labeling_task, epochs, base_network, classes, learning_rate, wd, mo
     
     #check if GPUs are available
     ctx = get_training_context(num_gpus)
+    print('ctx:',ctx)
+    #ctx = mx.gpu(0) if mx.context.num_gpus() > 0 else mx.cpu()
     
     #reassign parameters to context ctx
     model.collect_params().reset_ctx(ctx)
@@ -225,7 +227,8 @@ def transform_fn(model, data, content_type, output_content_type):
     x, image = gcv.data.transforms.presets.ssd.transform_test(mx.nd.array(data), 512)
     
     #check if GPUs area available
-    ctx = get_training_context(num_gpus)
+    #ctx = get_training_context(num_gpus)
+    ctx = mx.gpu(0) if mx.context.num_gpus() > 0 else mx.cpu()
     
     #load image onto right context
     x = x.as_in_context(ctx)
@@ -277,5 +280,6 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     num_gpus = int(os.environ['SM_NUM_GPUS'])
+    print('num_gpus:',num_gpus)
     train(args.gt_labeling_task, args.epochs, args.base_network, args.classes, args.learning_rate, args.wd, args.momentum,
           args.model_dir, args.train, args.labels, args.current_host, args.hosts, num_gpus)
