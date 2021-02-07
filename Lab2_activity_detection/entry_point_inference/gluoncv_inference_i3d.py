@@ -48,10 +48,10 @@ def transform_fn(net, data, input_content_type, output_content_type):
     start = time.time()
     data = json.loads(data)
     video_data = read_video_data(data['S3_VIDEO_PATH'])
-    print(time.time())
+    print(time.time(),'ctx:',ctx)
     video_input = video_data.as_in_context(ctx)
     probs = net(video_input.astype('float32', copy=False))
-    print(time.time())
+    print(time.time(), 'probs:', probs)
     predicted = mx.nd.argmax(probs, axis=1).asnumpy().tolist()[0]
     probability = mx.nd.max(probs, axis=1).asnumpy().tolist()[0]
     
