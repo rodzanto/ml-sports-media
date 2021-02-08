@@ -8,7 +8,7 @@ import mxnet as mx
 from mxnet import autograd, gluon
 
 import subprocess
-subprocess.run(["pip",  "install", "gluoncv==0.9.2"])
+subprocess.run(["pip",  "install", "gluoncv==0.8.0"])
 
 import gluoncv as gcv
 from gluoncv.data.batchify import Tuple, Stack, Pad
