@@ -25,8 +25,10 @@ from gluoncv.data import VideoClsCustom
 from gluoncv.utils.filesystem import try_import_decord
 
 ctx = [mx.gpu() if mx.context.num_gpus() > 0 else mx.cpu()]
+print('ctx:',ctx)
 #HMDB51 classes
 classes = ['highlight', 'no_highlight']
+print('classes:',classes)
 dict_classes = dict(zip(range(len(classes)), classes))
 # ------------------------------------------------------------ #
 # Hosting methods                                              #
@@ -49,6 +51,7 @@ def transform_fn(net, data, input_content_type, output_content_type):
     data = json.loads(data)
     video_data = read_video_data(data['S3_VIDEO_PATH'])
     print(time.time(),'ctx:',ctx)
+    print('line 52:', video_data)
     video_input = video_data.as_in_context(ctx)
     probs = net(video_input.astype('float32', copy=False))
     print(time.time(), 'probs:', probs)

@@ -2,4 +2,4 @@ boto3
 gluoncv
 opencv-python
 decord
-numpy
+numpy==1.19.1
