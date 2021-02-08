@@ -24,7 +24,7 @@ from gluoncv.data.transforms import video
 from gluoncv.data import VideoClsCustom
 from gluoncv.utils.filesystem import try_import_decord
 
-ctx = mx.gpu(0)
+ctx = [mx.gpu() if mx.context.num_gpus() > 0 else mx.cpu()]
 #HMDB51 classes
 classes = ['highlight', 'no_highlight']
 dict_classes = dict(zip(range(len(classes)), classes))
