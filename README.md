@@ -1,7 +1,12 @@
 # ml-sports-media
 Laboratories for automatic sport's media processing with AWS ML - Amazon SageMaker
 
-## Lab #1: Object detection & tracking for sport videos with Amazon SageMaker
+### Pre-requisites and notes:
+* Each of the following labs include a Jupyter notebook for following the instructions in the cells and code.
+* The notebooks are designed to be deployed with Amazon SageMaker. You can either use SageMaker Studio IDE or a traditional SageMaker Notebook instance. For instructions on how to onboard with SageMaker Studio visit: https://docs.aws.amazon.com/sagemaker/latest/dg/gs-studio-onboard.html
+* For starting the work with the labs first clone this repository to your notebook environment, then proceed with the notebooks in sequence.
+
+## [Lab #1: Object detection & tracking for sport videos with Amazon SageMaker](./Lab1_object_detection)
 
 **Goal:** Classify and track objects (e.g. ball, specific players) in stored videos for sports (e.g. football, basketball). Rely on SageMaker for this (Ground Truth?, Processing?).
 
