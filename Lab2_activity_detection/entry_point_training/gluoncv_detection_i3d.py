@@ -32,8 +32,7 @@ logging.basicConfig(level=logging.DEBUG)
 def train(args):
     # SageMaker passes num_cpus, num_gpus and other args we can use to tailor training to
     # the current container environment
-    num_gpus = mx.context.num_gpus()
-    ctx = [mx.gpu(i) for i in range(num_gpus)] if num_gpus > 0 else [mx.cpu()]
+    ctx = mx.gpu(0)
     # retrieve the hyperparameters we set in notebook (with some defaults)
     
     #number of training examples utilized in one iteration.

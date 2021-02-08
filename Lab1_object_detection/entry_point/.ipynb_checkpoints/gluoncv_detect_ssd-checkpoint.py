@@ -101,15 +101,9 @@ def get_dataloader(model, train_dataset, validation_dataset, height, width, batc
         batch_size, True, batchify_fn=batchify_fn, last_batch='rollover', num_workers=num_workers)
     
     return train_loader
-
-def get_training_context(num_gpus):
-    if num_gpus:
-        return [mx.gpu(i) for i in range(num_gpus)]
-    else:
-        return mx.cpu()
         
 def train(gt_labeling_task, epochs, base_network, classes, learning_rate, wd, momentum, model_dir, train, labels,
-          current_host, hosts, num_gpus): 
+          current_host, hosts): 
     """
     Transfer learning.
     """
@@ -133,9 +127,8 @@ def train(gt_labeling_task, epochs, base_network, classes, learning_rate, wd, mo
     train_loader= get_dataloader(model, train_dataset, val_dataset, 512, 512, 16, 1)
     
     #check if GPUs are available
-    ctx = get_training_context(num_gpus)
-    print('ctx:',ctx)
-    #ctx = mx.gpu(0) if mx.context.num_gpus() > 0 else mx.cpu()
+    ctx = [mx.gpu() if mx.context.num_gpus() > 0 else mx.cpu()]
+    print('ctx:', ctx)
     
     #reassign parameters to context ctx
     model.collect_params().reset_ctx(ctx)
@@ -208,10 +201,12 @@ def model_fn(model_dir):
     :param: model_dir The directory where model files are stored.
     :return: a model (in this case a Gluon network)
     """
+    ctx = mx.gpu() if mx.context.num_gpus() > 0 else mx.cpu()
     net = gluon.SymbolBlock.imports(
         '%s/model-symbol.json' % model_dir,
         ['data'],
         '%s/model-0000.params' % model_dir,
+        ctx=ctx
     )
    
     return net
@@ -227,8 +222,7 @@ def transform_fn(model, data, content_type, output_content_type):
     x, image = gcv.data.transforms.presets.ssd.transform_test(mx.nd.array(data), 512)
     
     #check if GPUs area available
-    #ctx = get_training_context(num_gpus)
-    ctx = mx.gpu(0) if mx.context.num_gpus() > 0 else mx.cpu()
+    ctx = mx.gpu() if mx.context.num_gpus() > 0 else mx.cpu()
     
     #load image onto right context
     x = x.as_in_context(ctx)
@@ -279,7 +273,5 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    num_gpus = int(os.environ['SM_NUM_GPUS'])
-    print('num_gpus:',num_gpus)
     train(args.gt_labeling_task, args.epochs, args.base_network, args.classes, args.learning_rate, args.wd, args.momentum,
-          args.model_dir, args.train, args.labels, args.current_host, args.hosts, num_gpus)
+          args.model_dir, args.train, args.labels, args.current_host, args.hosts)
