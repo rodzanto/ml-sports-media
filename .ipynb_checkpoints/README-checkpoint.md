@@ -9,6 +9,8 @@ Laboratories for automatic sport's media processing with AWS AI & ML services.
 
 `git clone https://github.com/rodzanto/ml-sports-media`
 
+<img src="./images/s1.png" alt="Studio" width="600"/>
+
 3. Go to the file browser in the left pane, you should now see the folder with the copy of the "ml-sports-media" repository. You can access the Lab #1 and open the corresponding Jupyter notebook. Follow the instructions in the notebook.
 
 4. Proceed with Lab #2.
