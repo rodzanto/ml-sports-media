@@ -21,11 +21,11 @@ Laboratories for automatic sport's media processing with AWS AI & ML services.
 
 **Goal:** Classify and track objects (e.g. ball, specific players) in stored videos for sports (e.g. football, basketball). Rely on SageMaker for this (Ground Truth, Training, Endpoints).
 
-<img src="./images/Lab1_1.jpeg" alt="Lab2" width="800"/>
+<img src="./images/Lab1_1.jpeg" alt="Lab1_1" width="800"/>
 
-<img src="./images/Lab1_2_1.jpeg" alt="Lab2" width="800"/>
+<img src="./images/Lab1_2.jpeg" alt="Lab1_2" width="800"/>
 
-<img src="./images/Lab1_2.jpeg" alt="Lab2" width="800"/>
+<img src="./images/Lab1_2_1.jpeg" alt="Lab1_2_1" width="800"/>
 
 ### [Lab #2: Activity detection for sport videos with Amazon SageMaker](./Lab2_activity_detection/Lab2_activity_detection.ipynb)
 
