@@ -19,7 +19,7 @@ Laboratories for automatic sport's media processing with AWS AI & ML services.
 
 ### [Lab #1: Object detection & tracking for sport videos with Amazon SageMaker](./Lab1_object_detection/Lab1_object_detection.ipynb)
 
-**Goal:** Classify and track objects (e.g. ball, specific players) in stored videos for sports (e.g. football, basketball). Rely on SageMaker for this (Ground Truth, Training, Endpoints).
+**Goal:** Classify and track objects (e.g. ball, specific players) in stored videos for sports (e.g. football, basketball). Rely on Amazon SageMaker for this (Ground Truth, Training, Endpoints).
 
 <img src="./images/Lab1_1.jpeg" alt="Lab1_1" width="800"/>
 
@@ -29,12 +29,12 @@ Laboratories for automatic sport's media processing with AWS AI & ML services.
 
 ### [Lab #2: Activity detection for sport videos with Amazon SageMaker](./Lab2_activity_detection/Lab2_activity_detection.ipynb)
 
-**Goal:** Classify activities (e.g. shot, pass, nice play) in stored videos for sports (e.g. football, basketball). Rely on SageMaker for this (Ground Truth, Training, Endpoints).
+**Goal:** Classify activities (e.g. shot, pass, nice play) in stored videos for sports (e.g. football, basketball). Rely on Amazon SageMaker for this (Ground Truth, Training, Endpoints).
 
 <img src="./images/Lab2.jpeg" alt="Lab2" width="800"/>
 
 ### [Lab #3: Automatic highlights clipping for sports videos with Amazon SageMaker](./Lab3_automatic_clipping/Lab3_automatic_clipping.ipynb)
 
-**Goal:** Process videos of sports based on activity classification for automatically clipping highlights with relevant plays (Transcribe, Textract, Rekognition, etc.).
+**Goal:** Process videos of sports based on activity classification for automatically clipping highlights with relevant plays. Rely on AWS AI Services for this (Amazon Transcribe, Amazon Textract, Amazon Rekognition, etc.).
 
 <img src="./images/Lab3.jpeg" alt="Lab2" width="800"/>
