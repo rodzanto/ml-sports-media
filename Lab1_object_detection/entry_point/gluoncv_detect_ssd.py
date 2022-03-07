@@ -111,7 +111,7 @@ def train(gt_labeling_task, epochs, base_network, classes, learning_rate, wd, mo
     from gluoncv import model_zoo, data, utils   
 
     # get the pretrained model and set classes to AWS
-    model = gcv.model_zoo.get_model(base_network, classes=classes, pretrained_base=False, transfer='voc')
+    model = gcv.model_zoo.get_model(base_network, classes=classes, pretrained_base=True, transfer='voc')
     
     #images and labels from Groundtruth are downloaded by Sagemaker into training instance
     train_dataset = GroundTruthDetectionDataset(split='train', 
